@@ -1,8 +1,9 @@
 import sys
+import csv
+import numpy as py
 
 
 class Problem:  # think we need adjacency matrix in this class?
-
 
     def __init__(self, initial, goal):
         self.initial = initial
@@ -11,11 +12,19 @@ class Problem:  # think we need adjacency matrix in this class?
 
     @staticmethod
     def read_file(file):
-        lines = []
+        col_lst = []
+        row_lst = []
+        my_dict = {}
+
         with open(file, 'r') as f:
+            data = list(csv.reader(f, delimiter=','))
+        data = py.array(data)
+        data_lst = []
+        data_lst = data.tolist()
 
-            lines.append(f.readline())
-
+        col_lst = data_lst[0][1:]
+        for element in data_lst[1:]:
+            row_lst.append(element[0])
 
     def state_space(self, file):  # make the adjacency matrix. set of possible states environment can be in
         # x axis of state space (2D array) will be currenty looking state
@@ -49,9 +58,10 @@ class Node:
 
 def main():
     if len(sys.argv) == 3:
+        Problem.read_file("straightline(1).csv")
         initial_state = (sys.argv[1])
         goal_state = (sys.argv[2])
-        #problem = Problem(initial_state, goal_state)
+        # problem = Problem(initial_state, goal_state)
     else:
         raise Exception('ERROR: Not enough or too many arguments')
 
