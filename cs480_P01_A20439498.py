@@ -3,10 +3,19 @@ import sys
 
 class Problem:  # think we need adjacency matrix in this class?
 
+
     def __init__(self, initial, goal):
         self.initial = initial
         self.goal = goal
         self.actions = []  # set of actions for each state in the state space
+
+    @staticmethod
+    def read_file(file):
+        lines = []
+        with open(file, 'r') as f:
+
+            lines.append(f.readline())
+
 
     def state_space(self, file):  # make the adjacency matrix. set of possible states environment can be in
         # x axis of state space (2D array) will be currenty looking state
@@ -42,10 +51,9 @@ def main():
     if len(sys.argv) == 3:
         initial_state = (sys.argv[1])
         goal_state = (sys.argv[2])
-        problem = Problem(initial_state, goal_state)
+        #problem = Problem(initial_state, goal_state)
     else:
         raise Exception('ERROR: Not enough or too many arguments')
-
 
 
 if __name__ == '__main__':
