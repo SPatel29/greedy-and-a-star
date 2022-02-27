@@ -57,10 +57,10 @@ class Node:
 
 
 def main():
-    if len(sys.argv) == 3:
-        Problem.read_file("straightline(1).csv")
+    if len(sys.argv) == 3:      
         initial_state = (sys.argv[1])
         goal_state = (sys.argv[2])
+        Problem.read_file("greedy-and-a-star/driving(1).csv")
         # problem = Problem(initial_state, goal_state)
     else:
         raise Exception('ERROR: Not enough or too many arguments')
