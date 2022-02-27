@@ -61,7 +61,7 @@ def main():
         initial_state = (sys.argv[1])
         goal_state = (sys.argv[2])
         Problem.read_file("greedy-and-a-star/driving(1).csv")
-        print("adfadadf123")
+        print("testing sunny")
         # problem = Problem(initial_state, goal_state)
     else:
         raise Exception('ERROR: Not enough or too many arguments')
