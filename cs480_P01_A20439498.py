@@ -80,7 +80,7 @@ class Problem:  # think we need adjacency matrix in this class?
 
 class Node:
 
-    def __init__(self, state, parent=None, action_taken=None, path_cost=None):
+    def __init__(self, state, parent=None, action_taken=None, path_cost=0):
         # state = the state to which the node belongs
         # parent = node in the tree that GENERATED this node. I.e should be a REFERENCE to parent node
         # action = the action that was applied to the PARENTS state to generate this node. I.e applied stateTo to stateFrom
@@ -99,17 +99,21 @@ def best_first_search(problem, f):
 
     node = Node(problem.initial)
     frontier = PriorityQueue()
-    frontier.put(
-        (problem.straight_line_state_space[problem.initial][problem.goal], node))   
-    # the above adds a tuple of (straight_line_distance, node). 
-    # priority queue is ordered (arranged) by straight_line_distance. Least distance is front.
+   
     if f == "greedy":
-        temp_lst = problem.get_line_distance(problem.initial)
-        temp_lst.sort()
-        #frontier.sort(problem.get_line_distance(problem.initial))
+        # the priority queue is a tuple of (straight_line_distance, node).
+        # priority queue is ordered (arranged) by straight_line_distance. Least distance is front.
+        frontier.put(
+            (problem.straight_line_state_space[problem.initial][problem.goal], node))
         
     else:  # A*
-        pass
+        # the above is a tuple of (straight_line_distance, node).
+        # priority queue is ordered (arranged) by node path cost + straight_line_distance. 
+        # Least number is front
+        frontier.put(
+            (problem.straight_line_state_space[problem.initial][problem.goal] + node.path_cost, node))
+        
+        
 
     return False
 
@@ -122,7 +126,7 @@ def main():
         problem.generate_state_space(
             "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
         # problem = Problem(initial_state, goal_state)
-        best_first_search(problem, "greedy")
+        best_first_search(problem, "a*")
         #lst = problem.actions("WY")
         #problem.get_line_distance("WY", lst)
     else:
