@@ -3,6 +3,7 @@ from queue import Queue
 from sre_parse import State
 import sys
 import csv
+from webbrowser import get
 import numpy as py
 from queue import PriorityQueue
 
@@ -77,6 +78,8 @@ class Problem:  # think we need adjacency matrix in this class?
     def get_goal_state(self):
         return self.goal
 
+    def is_goal(self, state):
+        return state == self.goal
 
 class Node:
 
@@ -99,19 +102,32 @@ def best_first_search(problem, f):
 
     node = Node(problem.initial)
     frontier = PriorityQueue()
-   
+    reached = {}
     if f == "greedy":
         # the priority queue is a tuple of (straight_line_distance, node).
         # priority queue is ordered (arranged) by straight_line_distance. Least distance is front.
         frontier.put(
             (problem.straight_line_state_space[problem.initial][problem.goal], node))
+        reached[problem.initial] = node
+        while not frontier.empty():
+            node = frontier.get()
+            if problem.is_goal(node[1].state):
+                return node
+            
+
         
+
     else:  # A*
         # the above is a tuple of (straight_line_distance, node).
         # priority queue is ordered (arranged) by node path cost + straight_line_distance. 
         # Least number is front
         frontier.put(
             (problem.straight_line_state_space[problem.initial][problem.goal] + node.path_cost, node))
+        reached[problem.initial] = node
+        while not frontier.empty():
+            pass
+        
+            
         
         
 
@@ -126,7 +142,7 @@ def main():
         problem.generate_state_space(
             "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
         # problem = Problem(initial_state, goal_state)
-        best_first_search(problem, "a*")
+        best_first_search(problem, "greedy")
         #lst = problem.actions("WY")
         #problem.get_line_distance("WY", lst)
     else:
