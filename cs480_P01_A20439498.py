@@ -1,8 +1,10 @@
 from msilib.schema import ProgId
 from queue import Queue
+from sre_parse import State
 import sys
 import csv
 import numpy as py
+from queue import PriorityQueue
 
 
 class Problem:  # think we need adjacency matrix in this class?
@@ -63,11 +65,12 @@ class Problem:  # think we need adjacency matrix in this class?
         return temp_lst
 
     # lst is all possible states it can traverse. state is current node
-    def get_line_distance(self, state, lst):
+    def get_line_distance(self, state):
+        possible_actions = self.actions(state)
         temp_lst = []
-        for element in lst:
+        for element in possible_actions:
             temp_lst.append(self.straight_line_state_space[state][element])
-
+        return temp_lst
     def get_initial_state(self):
         return self.initial
 
@@ -94,11 +97,17 @@ def best_first_search(problem, f):
     # Create Prio Queue
     #   queue is ordered by f with a node object as an element. F is our eval function
 
-    node = Node(problem.get_state)
-    frontier = []
-    frontier.append(node)
+    node = Node(problem.initial)
+    frontier = PriorityQueue()
+    frontier.put(
+        (problem.straight_line_state_space[problem.initial][problem.goal], node))   
+    # the above adds a tuple of (straight_line_distance, node). 
+    # priority queue is ordered (arranged) by straight_line_distance. Least distance is front.
     if f == "greedy":
-        frontier.sort(key=node.path_cost)
+        temp_lst = problem.get_line_distance(problem.initial)
+        temp_lst.sort()
+        #frontier.sort(problem.get_line_distance(problem.initial))
+        
     else:  # A*
         pass
 
@@ -107,13 +116,13 @@ def best_first_search(problem, f):
 
 def main():
     if len(sys.argv) == 3:
-        initial_state = (sys.argv[1])
-        goal_state = (sys.argv[2])
+        initial_state = ("AL")
+        goal_state = ("IL")
         problem = Problem(initial_state, goal_state)
         problem.generate_state_space(
             "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
         # problem = Problem(initial_state, goal_state)
-
+        best_first_search(problem, "greedy")
         #lst = problem.actions("WY")
         #problem.get_line_distance("WY", lst)
     else:
