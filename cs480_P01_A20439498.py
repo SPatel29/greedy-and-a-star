@@ -37,7 +37,6 @@ class Problem:  # think we need adjacency matrix in this class?
                     # subtract by one because we do not want we are skipping over first index of element since it
                     # does not contain a data value. the first index contains the row header, not numeber distance
 
-
         # Below is the straight line
         with open(straight_line_file, 'r') as f:
             # a list within a list. Each sublist is a line from file
@@ -59,9 +58,15 @@ class Problem:  # think we need adjacency matrix in this class?
     def actions(self, state):
         temp_lst = []
         for key, value in self.driving_state_space[state].items():
-            if value > 0:
+            if value >= 0:
                 temp_lst.append(key)
         return temp_lst
+
+    # lst is all possible states it can traverse. state is current node
+    def get_line_distance(self, state, lst):
+        temp_lst = []
+        for element in lst:
+            temp_lst.append(self.straight_line_state_space[state][element])
 
     def get_initial_state(self):
         return self.initial
@@ -108,6 +113,9 @@ def main():
         problem.generate_state_space(
             "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
         # problem = Problem(initial_state, goal_state)
+
+        #lst = problem.actions("WY")
+        #problem.get_line_distance("WY", lst)
     else:
         raise Exception('ERROR: Not enough or too many arguments')
 
