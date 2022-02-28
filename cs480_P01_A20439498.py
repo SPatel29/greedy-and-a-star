@@ -15,22 +15,17 @@ class Problem:  # think we need adjacency matrix in this class?
         self.straight_line_state_space = {}
 
     def generate_state_space(self, driving_file, straight_line_file):
-
         col_lst = []
         row_lst = []
-        driving_data_lst = []
-        straight_line_lst = []
         with open(driving_file, 'r') as f:
+            # a list within a list. Each sublist is a line from file
             driving_data = list(csv.reader(f, delimiter=','))
-        driving_data = py.array(driving_data)
-        # a list within a list. Each sublist is a line from file
-        driving_data_lst = driving_data.tolist()
 
-        col_lst = driving_data_lst[0][1:]
-        for element in driving_data_lst[1:]:
+        col_lst = driving_data[0][1:]
+        for element in driving_data[1:]:
             row_lst.append(element[0])
 
-        for element in driving_data_lst[1:]:  # element is a list
+        for element in driving_data[1:]:  # element is a list
             # create nested dictionary
             self.driving_state_space[element[0]] = {}
             for i in range(len(element)):
@@ -41,16 +36,24 @@ class Problem:  # think we need adjacency matrix in this class?
                     # element[0] is the row header for each line. col)lst[i] is the col header from col_list
                     # subtract by one because we do not want we are skipping over first index of element since it
                     # does not contain a data value. the first index contains the row header, not numeber distance
-        print(self.driving_state_space["MO"]["NE"])
+
 
         # Below is the straight line
         with open(straight_line_file, 'r') as f:
-            straight_line_data = list(csv.reader(f, delimiter=','))
-        driving_data = py.array(driving_data)
+            # a list within a list. Each sublist is a line from file
+            line_data = list(csv.reader(f, delimiter=','))
 
+        for element in line_data[1:]:  # element is a list
+            # create nested dictionary
+            self.straight_line_state_space[element[0]] = {}
+            for i in range(len(element)):
+                # if not row header (i.e is a straight line distance)
+                if element[i] not in row_lst:
+                    self.straight_line_state_space[element[0]
+                                                   ][col_lst[i-1]] = int(element[i])
 
     def get_cost(self, state_from, state_to):
-        return self.driving_state_space[state_from][state_to]
+        return self.straight_line_state_space[state_from][state_to]
 
     # returns a list of all possible states it can traverse.
     def actions(self, state):
