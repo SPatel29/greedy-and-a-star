@@ -81,7 +81,8 @@ class Problem:  # think we need adjacency matrix in this class?
     def is_goal(self, state):
         return state == self.goal
 
-class Node:
+
+class Node:     # is also a linked list
 
     def __init__(self, state, parent=None, action_taken=None, path_cost=0):
         # state = the state to which the node belongs
@@ -93,6 +94,19 @@ class Node:
         self.action_taken = action_taken
         self.path_cost = path_cost
 
+        # Going backward from the solution node and using PARENT pointers (self.parent) can recreate
+        # the entier path from the initial node to the solution  node
+        # this would be a linked list datastructure holding the path.
+        # I.e self.parent can be considered as a linked list data structure
+
+
+def expand(problem, node):  # node is parent node. Is a tuple consiting of parent total cost and parent node object
+    s = node[1].state
+    for state_to in problem.actions(s):   #action is a list of state names it can traverse to 
+        node_cost = problem.driving_state_space[s][state_to]    #cost to traverse that node alone
+        path_cost = node[1].path_cost + node_cost
+        yield Node(state_to, node, node_cost, path_cost)
+    
 
 def best_first_search(problem, f):
     # TODO:
@@ -113,10 +127,11 @@ def best_first_search(problem, f):
             node = frontier.get()
             if problem.is_goal(node[1].state):
                 return node
-            
-
-        
-
+            for child in expand(problem, node):
+                 s = child.state
+                 if s not in reached or child.path_cost < reached[s].path_cost:
+                     reached[s] = child    # add or update existing node
+                     frontier.put((problem.straight_line_state_space[s][problem.goal], child))
     else:  # A*
         # the above is a tuple of (straight_line_distance, node).
         # priority queue is ordered (arranged) by node path cost + straight_line_distance. 
@@ -127,7 +142,7 @@ def best_first_search(problem, f):
         while not frontier.empty():
             pass
         
-            
+
         
         
 
@@ -142,7 +157,8 @@ def main():
         problem.generate_state_space(
             "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
         # problem = Problem(initial_state, goal_state)
-        best_first_search(problem, "greedy")
+        my_node = best_first_search(problem, "greedy")
+        print(my_node[1].path_cost)
         #lst = problem.actions("WY")
         #problem.get_line_distance("WY", lst)
     else:
