@@ -1,10 +1,11 @@
 import sys
 import csv
 import numpy
+import time
 from queue import PriorityQueue
 
 
-class Problem:  # think we need adjacency matrix in this class?
+class Problem:  
 
     def __init__(self, initial, goal):
         self.initial = initial
@@ -96,6 +97,8 @@ class Node:     # is also a linked list
         # this would be a linked list datastructure holding the path.
         # I.e self.parent can be considered as a linked list data structure
 
+    def __lt__(self, other):
+        return self.path_cost < other.path_cost
 
 def expand(problem, node):  # node is parent node. Is a tuple consiting of parent total cost and parent node object
     s = node[1].state
@@ -108,48 +111,37 @@ def expand(problem, node):  # node is parent node. Is a tuple consiting of paren
 
 
 def best_first_search(problem, f):
-    # TODO:
-    # Create Node class
-    # Create Prio Queue
-    #   queue is ordered by f with a node object as an element. F is our eval function
-
     node = Node(problem.initial)
     frontier = PriorityQueue()
     reached = {}
     if f == "greedy":
-        # the priority queue is a tuple of (straight_line_distance, node).
-        # priority queue is ordered (arranged) by straight_line_distance. Least distance is front.
+        # add to prio queue as tuple of (straight line distance, node)
         frontier.put(
-            (problem.straight_line_state_space[problem.initial][problem.goal], node))
-        reached[problem.initial] = node
-        while not frontier.empty():
-            node = frontier.get()
-            if problem.is_goal(node[1].state):
-                return node
-            for child in expand(problem, node):
-                 s = child.state
-                 if s not in reached or child.path_cost < reached[s].path_cost:
-                     reached[s] = child    # add or update existing node
-                     frontier.put(
-                         (problem.straight_line_state_space[s][problem.goal], child))
-    else:  # A*
-        # the above is a tuple of (straight_line_distance, node).
-        # priority queue is ordered (arranged) by node path cost + straight_line_distance.
-        # Least number is front
+            (problem.straight_line_state_space[problem.initial][problem.goal], node))   
+    else:
+        # add to prio queue as tuple of (total path cost + straight line distance, node)
         frontier.put(
             (problem.straight_line_state_space[problem.initial][problem.goal] + node.path_cost, node))
-        reached[problem.initial] = node
-        while not frontier.empty():
-            node = frontier.get()
-            if problem.is_goal(node[1].state):
-                return node
-            for child in expand(problem, node):
-                s = child.state
-                if s not in reached or child.path_cost < reached[s].path_cost:
-                    reached[s] = child    # add or update existing node
+    reached[problem.initial] = node
+    while not frontier.empty():
+        node = frontier.get()
+        if problem.is_goal(node[1].state):
+            return node
+        for child in expand(problem, node):
+            s = child.state
+            if s not in reached or child.path_cost < reached[s].path_cost:
+                reached[s] = child    # add or update existing node
+                if f == "greedy":
+                    frontier.put((problem.straight_line_state_space[s][problem.goal], child))
+                else:
                     frontier.put(
                         (problem.straight_line_state_space[s][problem.goal] + child.path_cost, child))
     return False
+
+def print_menu(inital_state, goal_state):
+    print("Patel, Sunny, A20439498 solution: ")
+    print("Initial State: ", inital_state)
+    print("Goal State: ", goal_state, '\n\n')
 
 def main():
     state_names = {"AL": True, "AR": True, "AZ": True, "CA": True, 
@@ -167,24 +159,50 @@ def main():
                    "WY": True}
 
     if len(sys.argv) == 3:
-        initial_state = ("MA")
-        goal_state = ("MD")
+        initial_state = sys.argv[1]
+        goal_state = sys.argv[2]
         if initial_state in state_names and goal_state in state_names:
-            problem = Problem(initial_state, goal_state)
-            problem.generate_state_space(
-                "greedy-and-a-star/driving(1).csv", "greedy-and-a-star/straightline(1).csv")
-            my_node = best_first_search(problem, "a*")
-            if my_node:
+            start = time.time()
+            greedy_search = Problem(initial_state, goal_state)
+            greedy_search.generate_state_space(
+                "driving(1).csv", "straightline(1).csv")
+            greedy_sol_node = best_first_search(greedy_search, "greedy")
+            a_star_search = Problem(initial_state, goal_state)
+            a_star_search.generate_state_space(
+                "driving(1).csv", "straightline(1).csv")
+            a_star_sol_node = best_first_search(a_star_search, "a*")
+            print_menu(initial_state, goal_state)
+            if greedy_sol_node:
+                end = time.time()
                 lst = []
-                print("total path cost is: ", my_node[1].path_cost)            
-                while my_node[1].parent:
-                    lst.append(my_node[1].state)
-                    my_node = my_node[1].parent
-                lst.append(my_node[1].state) 
-                print("length is: ", len(lst))
-                print("nodes are: ", lst[::-1]) #[::-1] needed to reverse it
+                print("Greedy Best First Search: ")
+                total_cost_path = greedy_sol_node[1].path_cost           
+                while greedy_sol_node[1].parent:
+                    lst.append(greedy_sol_node[1].state)
+                    greedy_sol_node = greedy_sol_node[1].parent
+                lst.append(greedy_sol_node[1].state)    # add inital state
+                print("Solution path: ", lst[::-1]) #[::-1] needed to reverse it
+                print("Number of states on path: ", len(lst))
+                print("Path Cost: ", total_cost_path)
+                print("Execution time: ", end - start, '\n')
+                
+            if a_star_sol_node:
+                end = time.time()
+                lst = []
+                print("A* Search: ")
+                total_cost_path = a_star_sol_node[1].path_cost
+                while a_star_sol_node[1].parent:
+                    lst.append(a_star_sol_node[1].state)
+                    a_star_sol_node = a_star_sol_node[1].parent
+                lst.append(a_star_sol_node[1].state)
+                print("Solution path: ", lst[::-1])
+                print("Number of states on path: ", len(lst))
+                print("Path Cost: ", total_cost_path)
+                print("Execution time: ", end - start, '\n')
             else:
-                print("NO SOLUTION POSSIBLE")
+                print("FAILURE: NO PATH FOUND")
+                print("Number of states on path: 0")
+                print("Path Cost: 0")
         else:
             print("Please enter correct state names for your initial and goal states")
     else:
