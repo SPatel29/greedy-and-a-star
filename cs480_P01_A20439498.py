@@ -144,24 +144,16 @@ def print_menu(inital_state, goal_state):
     print("Goal State: ", goal_state, '\n\n')
 
 def main():
-    state_names = {"AL": True, "AR": True, "AZ": True, "CA": True, 
-                   "CO": True, "CT": True, "DC": True, "DE": True, 
-                   "FL": True, "GA": True, "IA": True, "ID": True, 
-                   "IL": True, "IN": True, "KS": True, "KY": True, 
-                   "LA": True, "MA": True, "MD": True, "ME": True, 
-                   "MI": True, "MN": True, "MO": True, "MS": True, 
-                   "MT": True, "NC": True, "ND": True, "NE": True, 
-                   "NH": True, "NJ": True, "NM": True, "NV": True, 
-                   "NY": True, "OH": True, "OK": True, "OR": True, 
-                   "PA": True, "RI": True, "SC": True, "SD": True, 
-                   "TN": True, "TX": True, "UT": True, "VA": True, 
-                   "VT": True, "WA": True, "WI": True, "WV": True, 
-                   "WY": True}
+    with open("driving(1).csv", 'r') as f:
+            # a list within a list. Each sublist is a line from file
+            driving_data = list(csv.reader(f, delimiter=','))
+
+    col_lst = driving_data[0][1:]
 
     if len(sys.argv) == 3:
         initial_state = sys.argv[1]
         goal_state = sys.argv[2]
-        if initial_state in state_names and goal_state in state_names:
+        if initial_state in col_lst and goal_state in col_lst:
             start = time.time()
             greedy_search = Problem(initial_state, goal_state)
             greedy_search.generate_state_space(
