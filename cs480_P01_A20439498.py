@@ -191,10 +191,12 @@ def main():
                 print("Number of states on path: ", len(lst))
                 print("Path Cost: ", total_cost_path)
                 print("Execution time: ", end - start, '\n')
-            else:
+            if not a_star_sol_node or not greedy_sol_node:      #if a star or greedy returns a false from search
+                end = time.time()
                 print("FAILURE: NO PATH FOUND")
                 print("Number of states on path: 0")
                 print("Path Cost: 0")
+                print("Execution time: ", end - start, '\n')
         else:
             print("Please enter correct state names for your initial and goal states")
     else:
