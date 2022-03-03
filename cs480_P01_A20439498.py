@@ -1,7 +1,7 @@
 import sys
 import csv
 import numpy
-import time
+import timeit
 from queue import PriorityQueue
 
 
@@ -144,17 +144,11 @@ def print_menu(inital_state, goal_state):
     print("Goal State: ", goal_state, '\n\n')
 
 def main():
-    with open("driving(1).csv", 'r') as f:
-            # a list within a list. Each sublist is a line from file
-            driving_data = list(csv.reader(f, delimiter=','))
-
-    col_lst = driving_data[0][1:]
-
     if len(sys.argv) == 3:
         initial_state = sys.argv[1]
         goal_state = sys.argv[2]
-        if initial_state in col_lst and goal_state in col_lst:
-            start = time.time()
+        start = timeit.default_timer()
+        try:
             greedy_search = Problem(initial_state, goal_state)
             greedy_search.generate_state_space(
                 "driving(1).csv", "straightline(1).csv")
@@ -165,7 +159,7 @@ def main():
             a_star_sol_node = best_first_search(a_star_search, "a*")
             print_menu(initial_state, goal_state)
             if greedy_sol_node:
-                end = time.time()
+                end = timeit.default_timer()
                 lst = []
                 print("Greedy Best First Search: ")
                 total_cost_path = greedy_sol_node[1].path_cost           
@@ -177,9 +171,8 @@ def main():
                 print("Number of states on path: ", len(lst))
                 print("Path Cost: ", total_cost_path)
                 print("Execution time: ", end - start, '\n')
-                
             if a_star_sol_node:
-                end = time.time()
+                end = timeit.default_timer()
                 lst = []
                 print("A* Search: ")
                 total_cost_path = a_star_sol_node[1].path_cost
@@ -192,15 +185,19 @@ def main():
                 print("Path Cost: ", total_cost_path)
                 print("Execution time: ", end - start, '\n')
             if not a_star_sol_node or not greedy_sol_node:      #if a star or greedy returns a false from search
-                end = time.time()
+                end = timeit.default_timer()
                 print("FAILURE: NO PATH FOUND")
                 print("Number of states on path: 0")
                 print("Path Cost: 0")
                 print("Execution time: ", end - start, '\n')
-        else:
-            print("Please enter correct state names for your initial and goal states")
+        except:     # handles stuff like a fake state being entered by the user since keyerror will be thrown
+            end = timeit.default_timer()
+            print("\nFAILURE: NO PATH FOUND")
+            print("Number of states on path: 0")
+            print("Path Cost: 0")
+            print("Execution time: ", end - start, '\n')
     else:
-        raise Exception('ERROR: Not enough or too many arguments')
+        print("ERROR: Not enough or too many input arguments.")
 
 
 if __name__ == '__main__':
